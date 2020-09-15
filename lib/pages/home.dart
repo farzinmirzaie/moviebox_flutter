@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:moviebox/server/api.dart' as api;
+import 'package:moviebox/widgets/movie_card.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -40,11 +41,11 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         title: Text("MovieBox"),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            TextField(
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: TextField(
               controller: _searchBoxController,
               onSubmitted: (keyword) => _search(keyword.trim()),
               onChanged: (keyword) => setState(() => _errorMessage = null),
@@ -54,27 +55,29 @@ class _HomePageState extends State<HomePage> {
                   errorText: _errorMessage,
                   suffixIcon: Icon(Icons.search)),
             ),
-            _isFetching && _results.length == 0
-                ? Expanded(child: Center(child: CircularProgressIndicator()))
-                : Expanded(
-                    child: GridView.builder(
-                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2),
-                        shrinkWrap: true,
-                        itemCount: _results.length,
-                        itemBuilder: (BuildContext context, int index) {
-                          return Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Container(
-                              color: Colors.amber,
-                              child:
-                                  Center(child: Text(_results[index]['Title'])),
-                            ),
-                          );
-                        }),
-                  )
-          ],
-        ),
+          ),
+          Divider(),
+          _isFetching && _results.length == 0
+              ? Expanded(child: Center(child: CircularProgressIndicator()))
+              : Expanded(
+                  child: GridView.builder(
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        crossAxisSpacing: 8,
+                        mainAxisSpacing: 8,
+                        childAspectRatio: 100 / 170,
+                      ),
+                      shrinkWrap: true,
+                      padding: const EdgeInsets.all(8.0),
+                      itemCount: _results.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        return Padding(
+                          padding: const EdgeInsets.all(4.0),
+                          child: MovieCard(data: _results[index]),
+                        );
+                      }),
+                )
+        ],
       ),
     );
   }
