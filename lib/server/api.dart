@@ -10,10 +10,7 @@ _getRequest(url) async {
   return convert.jsonDecode(response.body);
 }
 
-searchMovies(String query, int page) async {
-  if (page == null || page <= 0) {
-    page = 1;
-  }
+searchMovies(String query, {int page = 1}) async {
   var url = _baseURL + "&s=" + query + "&page=" + page.toString();
   return _getRequest(url);
 }

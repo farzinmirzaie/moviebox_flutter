@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:moviebox/server/api.dart' as api;
 
 class HomePage extends StatefulWidget {
   @override
@@ -8,11 +9,28 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   TextEditingController _searchBoxController = TextEditingController();
   String _errorMessage;
+  bool _isFetching = false;
+  List _results = [];
 
-  void search(String keyword) async {
+  _search(String keyword) async {
     if (keyword != null && keyword.length > 0) {
+      setState(() => {_isFetching = true, _errorMessage = null, _results = []});
+      var result = await api.searchMovies(keyword);
+      if (result['Response'] == "True") {
+        setState(() => {_isFetching = false, _results = result['Search']});
+      } else {
+        setState(() => {
+              _isFetching = false,
+              _errorMessage = result['Error'],
+              _results = []
+            });
+      }
     } else {
-      setState(() => _errorMessage = "Write something!");
+      setState(() => {
+            _isFetching = false,
+            _errorMessage = "Write something!",
+            _results = []
+          });
     }
   }
 
@@ -28,7 +46,7 @@ class _HomePageState extends State<HomePage> {
           children: [
             TextField(
               controller: _searchBoxController,
-              onSubmitted: (keyword) => search(keyword.trim()),
+              onSubmitted: (keyword) => _search(keyword.trim()),
               onChanged: (keyword) => setState(() => _errorMessage = null),
               decoration: InputDecoration(
                   border: OutlineInputBorder(),
@@ -36,6 +54,25 @@ class _HomePageState extends State<HomePage> {
                   errorText: _errorMessage,
                   suffixIcon: Icon(Icons.search)),
             ),
+            _isFetching && _results.length == 0
+                ? Expanded(child: Center(child: CircularProgressIndicator()))
+                : Expanded(
+                    child: GridView.builder(
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2),
+                        shrinkWrap: true,
+                        itemCount: _results.length,
+                        itemBuilder: (BuildContext context, int index) {
+                          return Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Container(
+                              color: Colors.amber,
+                              child:
+                                  Center(child: Text(_results[index]['Title'])),
+                            ),
+                          );
+                        }),
+                  )
           ],
         ),
       ),
