@@ -1,7 +1,8 @@
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'dart:convert' as convert;
 import 'package:http/http.dart' as http;
 
-var _apiKey = "SOME_API_KEY";
+var _apiKey = DotEnv().env['API_KEY'];
 var _baseURL = 'http://www.omdbapi.com/?apikey=' + _apiKey;
 
 _getRequest(url) async {
